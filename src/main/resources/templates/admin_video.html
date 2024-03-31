@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            display: flex;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .sidebar {
+            padding: 15px;
+            background-color: #2c3e50;
+            color: white;
+            width: 250px;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            background-color: #ecf0f1;
+        }
+
+        input[type=text], input[type=password], input[type=email], select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-top: 6px;
+            margin-bottom: 16px;
+            resize: vertical;
+        }
+
+        input[type=submit] {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        input[type=submit]:hover {
+            background-color: #2c3e50;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .radio-group, .checkbox-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            margin-bottom: 10px;
+            display: block;
+        }
+    </style>
+
+    <meta name="_csrf" content="${_csrf.token}"/>
+    <meta name="_csrf_header" content="${_csrf.headerName}"/>
+</head>
+<body>
+
+<div class="sidebar">
+    <span>designbytes</span>
+    <ul>
+        <li><a href="/member">회원관리</a></li>
+        <li><a href="/video">영상관리</a></li>
+        <li><a href="">학습자료 관리</a></li>
+        <li><a href="">홈페이지 관리</a></li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <!-- Main content -->
+    <div class="container">
+        <label for="video_title">영상제목</label>
+        <input type="text" maxlength="20" id="video_title" placeholder="최대 20글자">
+
+        <label for="video_length">영상길이</label>
+        <input type="text" id="video_length" placeholder="TODO 자동계산">
+
+        <label for="video_url">영상 URL</label>
+        <input type="text" id="video_url">
+
+        <div class="radio-group">
+            <label>영상 유/무료 여부</label>
+            <input type="radio" name="paid" id="paid1" value="Y" checked>
+            <label for="paid1">무료 숏폼</label>
+            <input type="radio" name="paid" id="paid2" value="N">
+            <label for="paid2">유료 숏폼</label>
+        </div>
+
+        <label for="video_price">영상 가격</label>
+        <input type="number" id="video_price" placeholder="미입력시 무료">
+
+        <br/>
+
+        <input id="saveVideo" type="button" value="저장">
+    </div>
+</div>
+
+</body>
+</html>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        var csrfToken = $("meta[name='_csrf']").attr("content");
+        var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+
+        $("#saveVideo").click(function () {
+            debugger;
+            const video_title = $("#video_title").val();
+            const video_length = $("#video_length").val();
+            const video_url = $("#video_url").val();
+            const paid = $("input[name=paid]:checked").val();
+            const video_price = $("#video_price").val();
+
+            if (video_title === "" || video_url === "") {
+                alert("모든 값을 입력해주세요.");
+                return;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/api/video/insert/url",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    videoTitle: video_title,
+                    videoUrl: video_url,
+                }),
+                beforeSend: function(xhr) {
+                    console.log(123);
+                    xhr.setRequestHeader(csrfHeader, csrfToken); // CSRF 토큰 헤더 추가
+                },
+                success: function (response) {
+                    console.log(response);
+                    // location.reload();
+                },
+                error: function(xhr, status, error) {
+
+                    // TODO @@@@@@@@@@@@@@@@ CHECK
+
+                    console.log(xhr)
+                }
+            });
+        });
+
+    });
+</script>
